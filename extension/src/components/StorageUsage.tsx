@@ -8,10 +8,9 @@ export function StorageUsage({ usage, error }: { usage: Usage | null; error: boo
   return (
     <div>
       <div className="mb-1 flex justify-between text-[11px] text-muted">
-        <span>Storage: {formatBytes(usage.bytes)} of {formatBytes(usage.quota)}</span>
-        <span className={high ? "text-warn" : ""}>~{usage.percent < 0.1 && usage.bytes > 0 ? "<0.1" : usage.percent.toFixed(1)}%</span>
+        <span>Storage: {formatBytes(usage.bytes)} / {formatBytes(usage.quota)}</span>
       </div>
-      <div className="h-1 overflow-hidden rounded-full bg-surface-2">
+       <div role="progressbar" aria-label="Storage usage" aria-valuenow={usage.percent} aria-valuemin={0} aria-valuemax={100} className="h-1 overflow-hidden rounded-full bg-surface-2">
         <div className={`h-full ${high ? "bg-warn" : "bg-accent"}`} style={{ width: `${Math.max(usage.percent, usage.bytes ? 1 : 0)}%` }} />
       </div>
       {high && <p className="mt-1 text-[11px] text-warn">Storage is almost full. Export and remove old snippets.</p>}

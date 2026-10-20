@@ -10,3 +10,7 @@
 <!-- LOVABLE:END -->
 
 - The Chrome extension lives in `extension/` with its own Vite config; build with `bunx vite build --config extension/vite.config.ts`, then copy `dist` to `public/snipvault-popup` and re-zip into `public/snipvault.zip` — the website only serves the prebuilt files.
+- The website embeds the prebuilt popup as its primary interface; keep extension dependencies isolated and do not import popup modules into TanStack routes.
+- Keep storage reads, validated cache, serialized mutations, and external-change subscriptions in the extension storage service; failed reads must block writes rather than substitute an empty collection.
+- Use the extension Button component for popup actions and Modal for trapped, labelled dialogs; popup shortcuts live in App and form save shortcuts live in SnippetForm.
+- Behavioral extension tests live beside the existing tests under src/test and import extension source directly.
