@@ -1,58 +1,41 @@
-import { useState } from "react";
-import { Check, ChevronDown, ChevronUp, Copy, Pencil, Trash2 } from "lucide-react";
+import { memo, useEffect, useRef, useState } from "react";
+import { Check, Copy, Pencil, Trash2 } from "lucide-react";
 import type { Snippet } from "../types/snippet";
 import { copyText } from "../services/clipboard";
-
-const PREVIEW_CHARS = 220;
-const PREVIEW_LINES = 4;
+import { Button } from "./Button";
 
 interface Props {
   snippet: Snippet;
-  onEdit: () => void;
-  onDelete: () => void;
-  onError: (msg: string) => void;
+  selected: boolean;
+  copyRequest: number;
+  onSelect: (id: string) => void;
+  onEdit: (snippet: Snippet) => void;
+  onDelete: (snippet: Snippet) => void;
+  onError: (message: string) => void;
 }
-
-export function SnippetCard({ snippet, onEdit, onDelete, onError }: Props) {
+export const SnippetCard = memo(function SnippetCard({ snippet, selected, copyRequest, onSelect, onEdit, onDelete, onError }: Props) {
   const [copied, setCopied] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const lines = snippet.content.split("\n");
-  const isLong = snippet.content.length > PREVIEW_CHARS || lines.length > PREVIEW_LINES;
-  const preview = isLong && !expanded
-    ? lines.slice(0, PREVIEW_LINES).join("\n").slice(0, PREVIEW_CHARS) + "…"
-    : snippet.content;
-
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const card = useRef<HTMLElement>(null);
   const copy = async () => {
     try {
       await copyText(snippet.content);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      onError("Couldn't access the clipboard.");
-    }
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 1500);
+    } catch { onError("Couldn't access the clipboard."); }
   };
-
-  const btn = "rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-fg";
-  return (
-    <article className="rounded-xl border border-line bg-surface p-3">
-      <div className="mb-1.5 flex items-start gap-2">
-        <h3 className="min-w-0 flex-1 truncate font-semibold" title={snippet.title}>{snippet.title}</h3>
-        <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">{snippet.category}</span>
-      </div>
-      <pre className={`max-h-60 overflow-auto font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-fg/80`}>{preview}</pre>
-      <div className="mt-2 flex items-center gap-1">
-        <button onClick={copy} className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium ${copied ? "bg-ok/15 text-ok" : "bg-accent/15 text-accent hover:bg-accent/25"}`}>
-          {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? "Copied!" : "Copy"}
-        </button>
-        {isLong && (
-          <button onClick={() => setExpanded((e) => !e)} className="flex items-center gap-0.5 px-1.5 text-xs text-muted hover:text-fg">
-            {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />} {expanded ? "Less" : "More"}
-          </button>
-        )}
-        <div className="flex-1" />
-        <button onClick={onEdit} aria-label="Edit snippet" className={btn}><Pencil size={14} /></button>
-        <button onClick={onDelete} aria-label="Delete snippet" className={`${btn} hover:text-danger`}><Trash2 size={14} /></button>
-      </div>
-    </article>
-  );
-}
+  const copyRef = useRef(copy);
+  copyRef.current = copy;
+  useEffect(() => { if (copyRequest) void copyRef.current(); }, [copyRequest]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => { if (selected) card.current?.scrollIntoView({ block: "nearest" }); }, [selected]);
+  return <article ref={card} tabIndex={0} aria-label={snippet.title} aria-current={selected ? "true" : undefined} onFocus={() => onSelect(snippet.id)} onClick={() => onSelect(snippet.id)} className={`rounded-md border bg-surface p-3 outline-none focus-visible:ring-1 focus-visible:ring-accent ${selected ? "border-accent" : "border-line hover:border-muted"}`}>
+    <div className="mb-2 flex items-start gap-2"><h2 className="min-w-0 flex-1 truncate text-[13px] font-semibold" title={snippet.title}>{snippet.title}</h2><span className="shrink-0 text-[10px] text-muted">{snippet.category}</span></div>
+    <pre className="line-clamp-3 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-fg/80">{snippet.content.slice(0, 220)}{snippet.content.length > 220 ? "…" : ""}</pre>
+    <div className="mt-2 flex h-7 items-center gap-1">
+      <Button onClick={() => void copy()} title="Copy full snippet (Enter when selected)" aria-label={`Copy ${snippet.title}`} className={copied ? "text-ok" : "text-accent"}>{copied ? <Check size={13} /> : <Copy size={13} />}<span role="status">{copied ? "Copied" : "Copy"}</span></Button>
+      <div className="flex-1" /><Button onClick={() => onEdit(snippet)} aria-label={`Edit ${snippet.title}`} title="Edit snippet" className="px-1.5"><Pencil size={13} /></Button><Button onClick={() => onDelete(snippet)} aria-label={`Delete ${snippet.title}`} title="Delete snippet" className="px-1.5 hover:text-danger"><Trash2 size={13} /></Button>
+    </div>
+  </article>;
+});
