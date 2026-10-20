@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Modal } from "./Modal";
+import { Button } from "./Button";
 import { CATEGORIES, TITLE_MAX, type Category, type Snippet, type SnippetInput } from "../types/snippet";
 
 interface Props {
@@ -34,8 +35,13 @@ export function SnippetForm({ initial, onSave, onCancel }: Props) {
 
   const field = "w-full rounded-lg border bg-bg px-3 py-2 text-[13px] outline-none focus:border-accent";
   return (
-    <Modal onClose={onCancel}>
-      <form onSubmit={submit} noValidate className="space-y-3">
+    <Modal onClose={onCancel} label={initial ? "Edit snippet" : "New snippet"}>
+      <form onSubmit={submit} noValidate className="space-y-3" onKeyDown={(event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          if (!saving) event.currentTarget.requestSubmit();
+        }
+      }}>
         <h2 className="text-sm font-semibold">{initial ? "Edit snippet" : "New snippet"}</h2>
         <div>
           <div className="mb-1 flex justify-between text-xs text-muted">
@@ -48,8 +54,8 @@ export function SnippetForm({ initial, onSave, onCancel }: Props) {
         </div>
         <div>
           <label htmlFor="sv-content" className="mb-1 block text-xs text-muted">Content</label>
-          <textarea id="sv-content" rows={8} value={content} onChange={(e) => setContent(e.target.value)} spellCheck={false}
-            className={`${field} resize-y font-mono text-xs ${errors.content ? "border-danger" : "border-line"}`} />
+          <textarea id="sv-content" rows={6} value={content} onChange={(e) => setContent(e.target.value)} spellCheck={false}
+            className={`${field} resize-none font-mono text-xs ${errors.content ? "border-danger" : "border-line"}`} />
           {errors.content && <p className="mt-1 text-xs text-danger">{errors.content}</p>}
         </div>
         <div>
@@ -60,10 +66,10 @@ export function SnippetForm({ initial, onSave, onCancel }: Props) {
         </div>
         {errors.save && <p className="rounded-lg bg-danger/10 p-2 text-xs text-danger">{errors.save}</p>}
         <div className="flex justify-end gap-2 pt-1">
-          <button type="button" onClick={onCancel} className="rounded-lg border border-line px-3 py-1.5 text-xs hover:bg-surface-2">Cancel</button>
-          <button type="submit" disabled={saving} className="rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-accent-fg disabled:opacity-60">
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button type="submit" variant="primary" disabled={saving}>
             {saving ? "Saving…" : "Save"}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

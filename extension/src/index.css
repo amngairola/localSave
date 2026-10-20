@@ -12,12 +12,13 @@
   --color-danger: #f26d6d;
   --color-warn: #f2b84b;
   --color-ok: #5fd39a;
+  --color-overlay: #00000099;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); }
-body { width: 400px; height: 580px; overflow: hidden; font-family: var(--font-sans); font-size: 13px; }
+body { width: min(400px, 100vw); height: min(580px, 100dvh); overflow: hidden; font-family: var(--font-sans); font-size: 13px; }
 #root { height: 100%; }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 8px; }
