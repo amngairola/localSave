@@ -41,9 +41,27 @@ export const SnippetCard = memo(function SnippetCard({ snippet, selected, copyRe
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => { if (selected) card.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, [selected]);
 
-  const handleFormat = (e: React.MouseEvent) => {
+  const handleFormat = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    onEdit({ ...snippet }); 
+  
+    const text = snippet.content ?? "";
+  
+    const formattedText = text
+      // Normalize line endings
+      .replace(/\r\n?/g, "\n")
+      // Remove trailing whitespace from each line
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .join("\n")
+      // Limit excessive blank lines to two
+      .replace(/\n{3,}/g, "\n\n")
+      // Remove unnecessary spaces at the beginning and end
+      .trim();
+  
+    onEdit({
+      ...snippet,
+      content: formattedText,
+    });
   };
 
   return (
