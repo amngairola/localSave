@@ -15,9 +15,9 @@ export function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm,
   const [pending, setPending] = useState(false);
   return (
     <Modal onClose={() => { if (!pending) onCancel(); }} label={title}>
-      <h2 className="mb-1 text-sm font-semibold">{title}</h2>
-      <div className="mb-4 text-xs text-muted">{message}</div>
-      <div className="flex justify-end gap-2">
+      <h2 className="mb-2 text-lg font-semibold text-[var(--color-fg)] tracking-tight">{title}</h2>
+      <div className="mb-6 text-sm text-[var(--color-muted)] leading-relaxed">{message}</div>
+      <div className="flex justify-end gap-3 pt-2">
         <Button autoFocus onClick={onCancel} disabled={pending}>Cancel</Button>
         <Button
           disabled={pending}

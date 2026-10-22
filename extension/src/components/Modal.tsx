@@ -4,11 +4,16 @@ export function Modal({ children, onClose, label }: { children: ReactNode; onClo
   const dialog = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
+
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const element = dialog.current;
     if (!element) return;
-    if (!element.contains(document.activeElement)) (element.querySelector<HTMLElement>("input, button, textarea, select") ?? element).focus();
+    
+    if (!element.contains(document.activeElement)) {
+      (element.querySelector<HTMLElement>("input, button, textarea, select") ?? element).focus();
+    }
+    
     const handle = (event: KeyboardEvent) => {
       if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeRef.current(); }
       if (event.key === "Tab") {
@@ -19,10 +24,26 @@ export function Modal({ children, onClose, label }: { children: ReactNode; onClo
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
       }
     };
+    
     element.addEventListener("keydown", handle);
     return () => { element.removeEventListener("keydown", handle); previous?.focus(); };
   }, []);
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-    <div ref={dialog} role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} className="max-h-full w-full overflow-auto rounded-md border border-line bg-surface p-4 outline-none">{children}</div>
-  </div>;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)] p-4 backdrop-blur-sm animate-in fade-in duration-200" 
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <div 
+        ref={dialog} 
+        role="dialog" 
+        aria-modal="true" 
+        aria-label={label} 
+        tabIndex={-1} 
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 shadow-2xl outline-none animate-in zoom-in-95 duration-200"
+      >
+        {children}
+      </div>
+    </div>
+  );
 }

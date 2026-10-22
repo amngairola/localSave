@@ -33,42 +33,69 @@ export function SnippetForm({ initial, onSave, onCancel }: Props) {
     }
   };
 
-  const field = "w-full rounded-lg border bg-bg px-3 py-2 text-[13px] outline-none focus:border-accent";
+  const field = "w-full rounded-xl border bg-[var(--color-bg)] px-4 py-2.5 text-sm text-[var(--color-fg)] placeholder-[var(--color-muted)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]";
+  
   return (
-    <Modal onClose={onCancel} label={initial ? "Edit snippet" : "New snippet"}>
-      <form onSubmit={submit} noValidate className="space-y-3" onKeyDown={(event) => {
+    <Modal onClose={onCancel} label={initial ? "Edit note" : "Take a note"}>
+      <form onSubmit={submit} noValidate className="space-y-4" onKeyDown={(event) => {
         if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
           event.preventDefault();
           if (!saving) event.currentTarget.requestSubmit();
         }
       }}>
-        <h2 className="text-sm font-semibold">{initial ? "Edit snippet" : "New snippet"}</h2>
+        <h2 className="text-lg font-semibold text-[var(--color-fg)] tracking-tight">
+          {initial ? "Edit note" : "New note"}
+        </h2>
+        
         <div>
-          <div className="mb-1 flex justify-between text-xs text-muted">
+          <div className="mb-1.5 flex justify-between text-xs font-medium text-[var(--color-muted)]">
             <label htmlFor="sv-title">Title</label>
             <span>{title.trim().length}/{TITLE_MAX}</span>
           </div>
-          <input id="sv-title" autoFocus maxLength={TITLE_MAX + 20} value={title} onChange={(e) => setTitle(e.target.value)}
-            className={`${field} ${errors.title ? "border-danger" : "border-line"}`} />
-          {errors.title && <p className="mt-1 text-xs text-danger">{errors.title}</p>}
+          <input 
+            id="sv-title" 
+            autoFocus 
+            maxLength={TITLE_MAX + 20} 
+            value={title} 
+            placeholder="Title"
+            onChange={(e) => setTitle(e.target.value)}
+            className={`${field} font-medium ${errors.title ? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]" : "border-[var(--color-line)]"}`} 
+          />
+          {errors.title && <p className="mt-1.5 text-xs font-medium text-[var(--color-danger)]">{errors.title}</p>}
         </div>
+        
         <div>
-          <label htmlFor="sv-content" className="mb-1 block text-xs text-muted">Content</label>
-          <textarea id="sv-content" rows={6} value={content} onChange={(e) => setContent(e.target.value)} spellCheck={false}
-            className={`${field} resize-none font-mono text-xs ${errors.content ? "border-danger" : "border-line"}`} />
-          {errors.content && <p className="mt-1 text-xs text-danger">{errors.content}</p>}
+          <label htmlFor="sv-content" className="mb-1.5 block text-xs font-medium text-[var(--color-muted)]">Note content</label>
+          <textarea 
+            id="sv-content" 
+            rows={8} 
+            value={content} 
+            placeholder="Write something..."
+            onChange={(e) => setContent(e.target.value)} 
+            spellCheck={false}
+            className={`${field} resize-none font-mono text-xs leading-relaxed ${errors.content ? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]" : "border-[var(--color-line)]"}`} 
+          />
+          {errors.content && <p className="mt-1.5 text-xs font-medium text-[var(--color-danger)]">{errors.content}</p>}
         </div>
+        
         <div>
-          <label htmlFor="sv-cat" className="mb-1 block text-xs text-muted">Category</label>
-          <select id="sv-cat" value={category} onChange={(e) => setCategory(e.target.value as Category)} className={`${field} border-line`}>
+          <label htmlFor="sv-cat" className="mb-1.5 block text-xs font-medium text-[var(--color-muted)]">Category</label>
+          <select 
+            id="sv-cat" 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value as Category)} 
+            className={`${field} border-[var(--color-line)] cursor-pointer`}
+          >
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
-        {errors.save && <p className="rounded-lg bg-danger/10 p-2 text-xs text-danger">{errors.save}</p>}
-        <div className="flex justify-end gap-2 pt-1">
+        
+        {errors.save && <p className="rounded-lg bg-[var(--color-danger)]/10 p-3 text-xs font-medium text-[var(--color-danger)] border border-[var(--color-danger)]/20">{errors.save}</p>}
+        
+        <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-line)] mt-2">
           <Button onClick={onCancel}>Cancel</Button>
           <Button type="submit" variant="primary" disabled={saving}>
-            {saving ? "Saving…" : "Save"}
+            {saving ? "Saving…" : "Save note"}
           </Button>
         </div>
       </form>
