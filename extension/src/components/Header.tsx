@@ -8,7 +8,7 @@ export function Header({ count, onAdd, disabled }: { count: number; onAdd: () =>
         <Vault size={20} className="text-[var(--color-accent)]" />
       </div>
       <h1 className="flex min-w-0 flex-1 items-center gap-2.5 text-base font-semibold text-[var(--color-fg)] tracking-tight">
-        SnipVault 
+        LocalSave
         <span className="rounded-full bg-[var(--color-surface-2)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-muted)]">
           {count} notes
         </span>
